@@ -7,14 +7,19 @@
 
 #include "../h/Queue.hpp"
 #include "../h/TCB.hpp"
+#include "../h/List.hpp"
 
 class _Semaphore {
     int val;
 
     int ret = 0;
 
-    Queue<TCB*> blocked;
+    //Queue<TCB*> blocked;
+    List<TCB*> blocked;
+    //List<TCB*> sleeping;
     _Semaphore(int val);
+
+   int  waitWithoutDispatch();
 
 
 

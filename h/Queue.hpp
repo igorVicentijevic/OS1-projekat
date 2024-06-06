@@ -8,7 +8,7 @@
 #include "../h/TCB.hpp"
 //#include "../h/print.h"
 
-#define Q_SIZE 256
+#define Q_SIZE 512
 
 template <typename T>
 class Queue {
@@ -48,9 +48,9 @@ class Queue {
 
      bool isEmpty() const{return head==tail; }
 
-    //~Queue(){
-       // delete[] q;
-     //}
+   /* ~Queue(){
+       delete[] q;
+     }*/
 
 
 

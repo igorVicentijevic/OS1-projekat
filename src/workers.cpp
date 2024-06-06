@@ -4,7 +4,7 @@
 
 #include "../h/workers.hpp"
 #include "../h/TCB.hpp"
-#include "../h/print.h"
+#include "../test/printing.hpp"
 #include "../h/syscall_c.hpp"
 #include "../h/_Semaphore.hpp"
 

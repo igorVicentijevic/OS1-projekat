@@ -12,13 +12,11 @@ MemoryAllocator::DataNode* MemoryAllocator::headAllocated = nullptr;
 const void* MemoryAllocator::memAlloc(size_t size){
 
 
-    size_t numOfBlocks = size / MEM_BLOCK_SIZE + (size % MEM_BLOCK_SIZE > 0 ? 1:0);
-    size_t sizeToAllocate = numOfBlocks * MEM_BLOCK_SIZE;
 
    DataNode* curr = headFree;
 
 
-    while(curr!= nullptr && curr->size < sizeToAllocate )
+    while(curr!= nullptr && curr->size < size )
         curr = curr ->next;
 
     if(curr == nullptr) return nullptr; //ne postoji free block zadate velicine
@@ -37,7 +35,7 @@ const void* MemoryAllocator::memAlloc(size_t size){
     //if(headAllocated) headAllocated->prev = curr;
     //headAllocated = curr;
 
-    size_t newFreeSize = curr->size - sizeToAllocate-sizeof(DataNode);
+    size_t newFreeSize = curr->size - size-sizeof(DataNode);
 
     if(newFreeSize < sizeof(DataNode)) return curr+sizeof(DataNode); //newFreeSize je premali da bi se ulancao u listu
 
@@ -48,9 +46,9 @@ const void* MemoryAllocator::memAlloc(size_t size){
 
     // novu lokaciju u memoriji dobijemo tako sto na trenutnu adress
     // dodamo offset velicine koju alociramo
-    DataNode* newFreeLoc =  (DataNode*)((char*) curr + sizeToAllocate+sizeof(DataNode));
-
-    curr->size = sizeToAllocate;
+    DataNode* newFreeLoc =  (DataNode*)((char*) curr + size+sizeof(DataNode));
+     newFreeLoc->next = newFreeLoc->next = nullptr;
+    curr->size = size;
 
     while(nextPos!=nullptr && nextPos->size < newFreeSize)
         nextPos=(prev = nextPos)->next;
@@ -59,6 +57,7 @@ const void* MemoryAllocator::memAlloc(size_t size){
         // ukoliko se smesta na kraj niza imamo dva posebna slucaja
 
         newFreeLoc->size = newFreeSize;
+
 
         if(prev == nullptr){
             //prvi slucaj: niz je prvobitno prazan, pa novi free block postaje head
@@ -83,7 +82,7 @@ const void* MemoryAllocator::memAlloc(size_t size){
 
     //printInt(curr->size);
 
-    printString("Nadjen je blok\n");
+   // printString("Nadjen je blok\n");
 
     return  (char*)curr+sizeof(DataNode);
 }
@@ -111,6 +110,8 @@ int MemoryAllocator::free(const void* p){
     if(p==nullptr) return -1;
     if((char*)p < (char*)HEAP_START_ADDR || (char*)p > (char*)HEAP_END_ADDR ) return -2;
 
+
+
     DataNode* curr = (DataNode*) ((char*)p-sizeof(DataNode));
 
     DataNode* f,*prev=nullptr;
@@ -120,13 +121,15 @@ int MemoryAllocator::free(const void* p){
             //dodaje se na kraj liste
         if(prev) prev->next = curr;  else headFree=curr;
         curr->prev = prev;
-        return 0;
-    }
 
+    }
+    else{
     curr->prev = f->prev;
     curr->next = f;
-    if(curr->prev) curr->prev->next = curr; else headFree=curr;
     f->prev = curr;
+    if(curr->prev) curr->prev->next = curr; else headFree=curr;
+
+    }
 
     MemoryAllocator::tryToJoin(curr);
     MemoryAllocator::tryToJoin(curr->prev);

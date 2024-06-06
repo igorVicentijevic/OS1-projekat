@@ -9,6 +9,8 @@
 //void* ::operator new (size_t);
 //void ::operator delete (void*);
 
+
+
 class Thread {
 public:
     Thread (void (*body)(void*), void* arg);
@@ -24,6 +26,8 @@ private:
     void (*body)(void*); void* arg;
 
     static void runWrapper(void *arg);
+    static void threadWrapper(void* arg);
+    friend class Riscv;
 };
 
 class Semaphore {
@@ -55,10 +59,10 @@ private:
 
     bool isTerminated = false;
 };
-/*
+
 class Console {
 public:
     static char getc ();
     static void putc (char);
-};*/
+};
 #endif

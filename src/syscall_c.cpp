@@ -8,7 +8,7 @@
 
 
 void * mem_alloc(size_t size){
-
+    if(size<=0) return nullptr;
 
 
     __asm__ volatile("mv a1, %0" : : "r"(size));
@@ -23,20 +23,27 @@ void * mem_alloc(size_t size){
 int mem_free(void* free){
 
 
-
-    __asm__ volatile("mv a1, %0" : : "r"(free));
+    __asm__ volatile("mv a1, %0" : : "r"((uint64)free));
     __asm__ volatile("li a0, 0x02");
     __asm__ volatile("ecall");
 
-   int returnValue;
+    int returnValue=0;
     __asm__ volatile("mv %0, a0" : "=r"(returnValue));
     return returnValue;
 }
 
 int thread_create (thread_t* handle,void(*start_routine)(void*),void* arg){
+
+     thread_t* saved_handle = handle;
+
+     void* stack = new uint64[DEFAULT_STACK_SIZE];
+
+
     __asm__ volatile("mv a7, %0" : : "r"(arg));
+     __asm__ volatile("mv a6, %0" : : "r"(stack));
     __asm__ volatile("mv a2, %0" : : "r"(start_routine));
-    __asm__ volatile("mv a1, %0" : : "r"(handle));
+    __asm__ volatile("mv a1, %0" : : "r"(saved_handle));
+
 
 
     __asm__ volatile("li a0, 0x11");
@@ -162,7 +169,11 @@ int sem_trywait(sem_t id){
 }
 
 int time_sleep(time_t sleepTime){
+    if(sleepTime<0) return -1;
+    if(sleepTime==0) return 0;
+
     __asm__ volatile("mv a1, %0" : : "r"(sleepTime));
+
 
 
     __asm__ volatile("li a0, 0x31");
@@ -177,7 +188,7 @@ int time_sleep(time_t sleepTime){
 
 //CONSOLE
 
-void put_c(char c){
+void putc(char c){
     __asm__ volatile("mv a1, %0" : : "r"((uint64)c));
 
 
@@ -185,10 +196,10 @@ void put_c(char c){
 
     __asm__ volatile("ecall");
 
-
+   int volatile x=3;
 }
 
-char get_c(){
+char getc(){
     __asm__ volatile("li a0, 0x41");
 
     __asm__ volatile("ecall");

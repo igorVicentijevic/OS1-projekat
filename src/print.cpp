@@ -12,7 +12,7 @@
 
 
 
-void printString(const char* str){
+void printString2(const char* str){
 
 
    // uint64 sstatus = Riscv::r_sstatus();
@@ -20,13 +20,13 @@ void printString(const char* str){
     while(*str != '\0')
     {
         //__putc(*str);
-        put_c(*str);
+        putc(*str);
         str++;
     }
    //Riscv::ms_sstatus(sstatus&Riscv::SSTATUS_SIE);
 }
 
-void printInt(unsigned long long x){
+void printInt2(unsigned long long x){
 
     //uint64 sstatus = Riscv::r_sstatus();
     //Riscv::mc_sstatus(Riscv::SSTATUS_SIE);
@@ -40,7 +40,7 @@ void printInt(unsigned long long x){
         x%=n;
         n/=10;
        //__putc('0'+num);
-       put_c('0'+num);
+       putc('0'+num);
     }
     //Riscv::ms_sstatus(sstatus&Riscv::SSTATUS_SIE);
 

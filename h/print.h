@@ -8,8 +8,8 @@
 #include "../lib/console.h"
 
 
-void printString(const char* str);
+void printString2(const char* str);
 
-void printInt(unsigned long long x);
+void printInt2(unsigned long long x);
 
 #endif //PRINT_H

@@ -99,8 +99,11 @@ public:
     //write to a0 register
     static void w_a0(uint64 writeValue);
 
-
+    static  void setMode(bool value);
 private:
+
+    static bool isUserMode;
+
 
     // supervisor trap handler
     static void handleSupervisorTrap();

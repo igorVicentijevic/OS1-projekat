@@ -17,7 +17,7 @@ void Idle::idleBody(void* args)
 TCB* Idle::getIdle(){
     if(idle == nullptr)
     {
-    idle = TCB::createThread(&Idle::idleBody,nullptr);
+     thread_create(&idle,&Idle::idleBody,nullptr);
     idle->start();}
     return idle;
 }

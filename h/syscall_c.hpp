@@ -36,9 +36,9 @@ int time_sleep(time_t sleepTime);
 
 //CONSOLE
 
-void put_c(char c);
+void putc(char c);
 
-char get_c();
+char getc();
 
 
 #endif

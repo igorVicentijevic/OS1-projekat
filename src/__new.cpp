@@ -3,9 +3,10 @@
 //
 
 #include "../h/syscall_c.hpp"
-
+#include "../lib/mem.h"
 void* operator new(size_t sz){
-    return mem_alloc(sz);
+   return mem_alloc(sz);
+
 }
 
 void* operator new[](size_t sz){
@@ -14,8 +15,9 @@ void* operator new[](size_t sz){
 
 void operator delete(void* ptr) noexcept{
     mem_free(ptr);
+
 }
 
 void operator delete[](void* ptr) noexcept{
-    mem_free(ptr);
+    __mem_free(ptr);
 }

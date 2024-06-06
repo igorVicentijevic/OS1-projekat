@@ -16,7 +16,7 @@ class TCB {
 
     static uint64 timeSliceCounter;
 
-	static List<TCB*> sleepingThreads;
+	static List<TCB*>* sleepingThreads;
 
 
 
@@ -25,6 +25,8 @@ class TCB {
     static uint64 ID;
 
 	time_t timeToSleep;
+
+
 
     struct Context{
         uint64 ra;
@@ -44,16 +46,20 @@ class TCB {
     bool finished = false;
 
 	static void putTCBToSleep(TCB* thrToSleep);
-    void run();
+
 
     static void dispatch();
 
     static void contextSwitch(Context* oldCon, Context* newCon);
 
-    TCB(Body body, void* args=nullptr, uint64 timeSlice = TIME_SLICE): body(body),args(args), timeSlice(timeSlice){
+    TCB(Body body, void* args,void* stack_space, uint64 timeSlice): body(body),args(args),
+    stack((uint64*) stack_space),timeSlice(timeSlice){
 
         pid=++ID;
         setFinished(false);
+    	//stack = new uint64[DEFAULT_STACK_SIZE];
+
+    	context = {(uint64)TCB::threadWrapper, (uint64) (stack+DEFAULT_STACK_SIZE)};
 
     }
 
@@ -72,7 +78,7 @@ public:
 
 
   static uint64 totalTimeSliceCounter;
-    static TCB* createThread(Body body,void* args);
+    static TCB* createThread(Body body,void* args,void* stack_space, uint64 timeSlice = DEFAULT_TIME_SLICE);
 
     static TCB* running;
 
@@ -95,6 +101,7 @@ public:
 	bool getPutBackInScheduler() const {return putBackInScheduler;}
 
 
+  ~TCB(){delete[] stack;}
 };
 
 

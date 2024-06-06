@@ -14,18 +14,7 @@ int _Semaphore::wait(){
     if(ret==-1) return -1;
 
     if(--val<0){
-
-
-        blocked.put(TCB::running);
-        /*Riscv::pushRegistersV();
-
-        TCB* old = TCB::running;
-	    TCB* t = Scheduler::get();
-        TCB::running = t?t:TCB::running ;
-
-        TCB::contextSwitch(&old->context, &TCB::running->context);
-
-        Riscv::popRegistersV();*/
+         blocked.addNodeToBack(TCB::running);
         TCB::running->putBackInScheduler = false;
         TCB::dispatch();
     }
@@ -34,8 +23,52 @@ int _Semaphore::wait(){
 }
 
 int _Semaphore::timedWait(time_t timeout){
-    time_t startTime = TCB::totalTimeSliceCounter
-    ret = this->wait();
+
+    if(ret==-1) return -1;
+
+    int retVal = 0;
+    if(--val<0){
+
+        blocked.addNodeToBack(TCB::running);
+        //u listu niti koje spavaju na semaforu dodajemo tekucu nit
+       // sleeping.addNodeToBack(TCB::running);
+
+        TCB::running->timeToSleep = timeout;
+       TCB::putTCBToSleep(TCB::running);
+
+        if(TCB::running -> timeToSleep > 0)
+        {
+
+
+            //probudjena je zbog signala
+            TCB::removeTCBfromSleepingThreads(TCB::running);
+
+            //return 0;
+             retVal = 0;
+        }
+        else{
+
+            //probudjena je jer je istekao timeout
+            blocked.removeGivenElem(TCB::running);
+
+            val++;
+           retVal = -2;
+
+        }
+        //izbacujemo iz niti koje spavaju na semaforu tekucu nit
+      //  sleeping.removeGivenElem(TCB::running);
+    }
+
+    return ret;
+}
+/*
+int _Semaphore::timedWait(time_t timeout){
+    time_t startTime = TCB::totalTimeSliceCounter;
+
+    ret = this->tryWait();
+    if(ret == 1){ // semafor se zakljucava
+
+    }
 
     if(ret == -1) return -1;
     //SEMDEAD -1
@@ -44,7 +77,7 @@ int _Semaphore::timedWait(time_t timeout){
 
     return 0;
 }
-
+*/
 int _Semaphore::tryWait(){
 	if(ret == -1) return -1;
 	if(val-1<0) return 0;
@@ -53,9 +86,13 @@ int _Semaphore::tryWait(){
 
 int _Semaphore::signal(){
 
-    if(val++<0){ //0
+    if(ret==-1) return ret;
+    if(val++<0){
 
-        TCB* t = *blocked.get();
+         if(blocked.isEmpty()) return 0;
+        //TCB* t = *blocked.get();
+
+        TCB* t = *(blocked.getFrontElem());
         t->putBackInScheduler = true;
         Scheduler::put(t);
     }
@@ -69,10 +106,17 @@ _Semaphore* _Semaphore::sem_create(int val){
 
 void _Semaphore::close(){
     while(!blocked.isEmpty()){
-         TCB* current = *blocked.get();
+         //TCB* current = *blocked.get();
+        TCB* current = *(blocked.getFrontElem());
           current->putBackInScheduler=true;
         Scheduler::put(current);
     }
+
+  /*  while(!sleeping.isEmpty()){
+        TCB* current = *(sleeping.getFrontElem());
+        current->putBackInScheduler=true;
+        Scheduler::put(current);
+    }*/
 
     ret = -1;
 
