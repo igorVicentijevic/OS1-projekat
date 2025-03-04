@@ -1,1 +1,1 @@
-Kernel za RISC-V procesor
+Kernel for RISC-V processor.
